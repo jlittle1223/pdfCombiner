@@ -1,11 +1,13 @@
 from PyPDF2 import PdfFileMerger
 import os
 
-pdfs = os.listdir()
-for file in pdfs:
-    if file[-4:] != ".pdf":
-        pdfs.remove(file)
+files = os.listdir()
+pdfs = []
+for file in files:
+    if file[-4:] == ".pdf":
+        pdfs.append(file)
 
+print(pdfs)
 numFiles = len(pdfs)
 
 assert numFiles % 2 == 0
