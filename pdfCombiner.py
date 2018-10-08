@@ -7,7 +7,6 @@ for file in files:
     if file[-4:] == ".pdf":
         pdfs.append(file)
 
-print(pdfs)
 numFiles = len(pdfs)
 
 assert numFiles % 2 == 0
@@ -27,3 +26,5 @@ for pdf in toMerge:
 
 with open('result.pdf', 'wb') as fout:
     merger.write(fout)
+    fout.close()
+
