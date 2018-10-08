@@ -13,6 +13,7 @@ try:
     
     numFiles = len(pdfs)
     
+    assert numFiles > 0, "Error: No .pdf files found"
     assert numFiles % 2 == 0, "Error: Encountered {} .pdf files, need an even number".format(numFiles)
     
     toMerge = []
