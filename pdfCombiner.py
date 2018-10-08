@@ -23,16 +23,16 @@ merger = PdfFileMerger()
 read_handles = []
 
 for pdf in toMerge:
-	handle = open(pdf, 'rb')
-	merger.append(handle)
-	read_handles.append(handle)
+    handle = open(pdf, 'rb')
+    merger.append(handle)
+    read_handles.append(handle)
 
 with open('result.pdf', 'wb') as fout:
     merger.write(fout)
     fout.close()
 	
 for handle in read_handles:
-	handle.close()
+    handle.close()
 
 for pdf in pdfs:
     os.remove(pdf)
