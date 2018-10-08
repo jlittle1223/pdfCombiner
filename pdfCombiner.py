@@ -20,11 +20,19 @@ for offset in range(int(numFiles / 2)):
 
 
 merger = PdfFileMerger()
+read_handles = []
 
 for pdf in toMerge:
-    merger.append(open(pdf, 'rb'))
+	handle = open(pdf, 'rb')
+	merger.append(handle)
+	read_handles.append(handle)
 
 with open('result.pdf', 'wb') as fout:
     merger.write(fout)
     fout.close()
+	
+for handle in read_handles:
+	handle.close()
 
+for pdf in pdfs:
+    os.remove(pdf)
