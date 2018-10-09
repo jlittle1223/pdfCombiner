@@ -75,19 +75,18 @@ def get_abs_out_path(arg_dict):
 
 def get_result_prefix(arg_dict):
     return arg_dict[result_prefix_flag]
-    
 
-        
-def get_all_pdfs(path='.'):
+def get_all_abs_pdf_paths(path='.'):
     abs_path = os.path.abspath(path)
     files = os.listdir(abs_path)
-    pdfs = []
+    abs_pdf_paths = []
+    
     for file in files:
         if file[-4:] == pdf_extension:
             abs_file_path = os.path.join(abs_path, file)
-            pdfs.append(abs_file_path)
+            abs_pdf_paths.append(abs_file_path)
             
-    return pdfs
+    return abs_pdf_paths
     
 def combine_pdfs(*args):
     read_handles = []
@@ -98,8 +97,8 @@ def combine_pdfs(*args):
         
         arg_dict = get_arg_dict(args)
         abs_in_path = get_abs_in_path(arg_dict)
-        pdfs = get_all_pdfs(abs_in_path)
-        numFiles = len(pdfs)
+        abs_pdf_paths = get_all_abs_pdf_paths(abs_in_path)
+        numFiles = len(abs_pdf_paths)
         
         assert numFiles > 0, "Error: No .pdf files found in "+abs_in_path
         assert numFiles % 2 == 0, ("Error: Encountered {} .pdf files in {}, "+ \
@@ -108,8 +107,8 @@ def combine_pdfs(*args):
         toMerge = []
         
         for offset in range(int(numFiles / 2)):
-            toMerge.append(pdfs[offset])
-            toMerge.append(pdfs[-(offset + 1)])
+            toMerge.append(abs_pdf_paths[offset])
+            toMerge.append(abs_pdf_paths[-(offset + 1)])
         
         merger = PdfFileMerger()
         
@@ -133,8 +132,8 @@ def combine_pdfs(*args):
         
         read_handles.clear()
         
-        for pdf in pdfs:
-            send2trash(pdf)
+        for abs_pdf_path in abs_pdf_paths:
+            send2trash(abs_pdf_path)
     except Exception as e:
         for handle in read_handles:     #In case anything goes wrong
             handle.close()
