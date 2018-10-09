@@ -28,11 +28,15 @@ default_out_directory_name = "results"
 in_flag = '-in'
 out_flag = '-out'
 result_prefix_flag = '-r'
+open_pdf_when_removing_pages_flag = '-o'
+minimum_pages_for_removing_flag = '-min'
 
 default_flag_values = OrderedDict()
 default_flag_values[in_flag]='.'
 default_flag_values[out_flag]=get_default_abs_out_path
 default_flag_values[result_prefix_flag]="result"
+default_flag_values[open_pdf_when_removing_pages_flag]=True
+default_flag_values[minimum_pages_for_removing_flag]=3
 
 def process_flag_candiate(flag_candidate):
     flag_candidate = flag_candidate.strip()
@@ -75,6 +79,16 @@ def get_abs_out_path(arg_dict):
 
 def get_result_prefix(arg_dict):
     return arg_dict[result_prefix_flag]
+
+def get_open_pdf_when_removing_pages(arg_dict):
+    return arg_dict[open_pdf_when_removing_pages_flag]
+
+def get_minimum_pages_for_removing(arg_dict):
+    try:
+        return int(arg_dict[minimum_pages_for_removing_flag])
+    except:
+        raise ValueError(("Minimum pages for removing must be an integer, "+
+                          "got {}").format(arg_dict[minimum_pages_for_removing_flag]))
 
 def get_all_abs_pdf_paths(path='.'):
     abs_path = os.path.abspath(path)
