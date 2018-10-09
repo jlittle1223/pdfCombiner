@@ -39,12 +39,13 @@ def combine_pdfs(*args):
         if len(args) > 1:
             pdf_path = args[1]
     
-        pdfs = get_all_pdfs(pdf_path)               
+        pdfs = get_all_pdfs(pdf_path)
         numFiles = len(pdfs)
         abs_pdf_path = os.path.abspath(pdf_path)
         
         assert numFiles > 0, "Error: No .pdf files found in "+abs_pdf_path
-        assert numFiles % 2 == 0, "Error: Encountered {} .pdf files in {}, need an even number".format(numFiles, abs_pdf_path)
+        assert numFiles % 2 == 0, ("Error: Encountered {} .pdf files in {}, "+ \
+            "need an even number").format(numFiles, abs_pdf_path)
         
         toMerge = []
         
