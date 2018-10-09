@@ -1,3 +1,6 @@
+import os
+from collections import OrderedDict
+
 def get_path(parent_path, file_prefix, file_suffix, copy_index=0):
     if copy_index <= 0:
         return os.path.join(parent_path, file_prefix+file_suffix)
@@ -12,10 +15,68 @@ def get_unique_path(parent_path, file_prefix, file_suffix, copy_index=0):
             return candidate_path
         
         copy_index += 1
+        
+def get_default_abs_out_path(arg_dict):
+    abs_in_path = get_abs_in_path(arg_dict)
+    default_abs_out_path = os.path.join(abs_in_path, default_out_directory_name)
+    
+    return default_abs_out_path
 
 pdf_extension = ".pdf"
-result_directory_name = "results"
-result_prefix = "result"
+default_out_directory_name = "results"
+
+in_flag = '-in'
+out_flag = '-out'
+result_prefix_flag = '-r'
+
+default_flag_values = OrderedDict()
+default_flag_values[in_flag]='.'
+default_flag_values[out_flag]=get_default_abs_out_path
+default_flag_values[result_prefix_flag]="result"
+
+def process_flag_candiate(flag_candidate):
+    flag_candidate = flag_candidate.strip()
+    flag_candidate = flag_candidate.lower()
+    
+    return flag_candidate
+
+def get_arg_dict(args):
+    arg_dict = {}
+    i = 1
+    
+    for i in range(1, len(args), 2):
+        arg = args[i]
+        flag_candidate = process_flag_candiate(arg)
+        
+        assert flag_candidate in default_flag_values, "Error: Unknown flag "+arg
+        
+        arg_dict[flag_candidate] = args[i+1]
+        
+    for flag, default_value in default_flag_values.items():
+        if flag not in arg_dict:
+            if callable(default_value):
+                arg_dict[flag] = default_value(arg_dict)
+            else:
+                arg_dict[flag] = default_value
+            
+    return arg_dict
+        
+def get_abs_arg_path(arg_dict, arg_flag):
+    rel_arg_path = arg_dict[arg_flag]
+    abs_arg_path = os.path.abspath(rel_arg_path)
+    
+    return abs_arg_path
+        
+def get_abs_in_path(arg_dict):
+    return get_abs_arg_path(arg_dict, in_flag)
+
+def get_abs_out_path(arg_dict):
+    return get_abs_arg_path(arg_dict, out_flag)
+
+def get_result_prefix(arg_dict):
+    return arg_dict[result_prefix_flag]
+    
+
         
 def get_all_pdfs(path='.'):
     abs_path = os.path.abspath(path)
@@ -35,17 +96,14 @@ def combine_pdfs(*args):
         from PyPDF2 import PdfFileMerger
         from send2trash import send2trash
         
-        pdf_path = '.'
-        if len(args) > 1:
-            pdf_path = args[1]
-    
-        pdfs = get_all_pdfs(pdf_path)
+        arg_dict = get_arg_dict(args)
+        abs_in_path = get_abs_in_path(arg_dict)
+        pdfs = get_all_pdfs(abs_in_path)
         numFiles = len(pdfs)
-        abs_pdf_path = os.path.abspath(pdf_path)
         
-        assert numFiles > 0, "Error: No .pdf files found in "+abs_pdf_path
+        assert numFiles > 0, "Error: No .pdf files found in "+abs_in_path
         assert numFiles % 2 == 0, ("Error: Encountered {} .pdf files in {}, "+ \
-            "need an even number").format(numFiles, abs_pdf_path)
+            "need an even number").format(numFiles, abs_in_path)
         
         toMerge = []
         
@@ -60,9 +118,11 @@ def combine_pdfs(*args):
             merger.append(handle)
             read_handles.append(handle)
         
-        result_directory = os.path.join(abs_pdf_path, result_directory_name)
-        os.makedirs(result_directory, exist_ok=True)
-        result_path = get_unique_path(result_directory, result_prefix, pdf_extension)
+        abs_out_path = get_abs_out_path(arg_dict)
+        os.makedirs(abs_out_path, exist_ok=True)
+        
+        result_prefix = get_result_prefix(arg_dict)
+        result_path = get_unique_path(abs_out_path, result_prefix, pdf_extension)
         
         with open(result_path, 'wb') as fout:
             merger.write(fout)
@@ -83,7 +143,6 @@ def combine_pdfs(*args):
         input()
 
 if __name__ == "__main__":
-    import os
     import sys
     
     combine_pdfs(*sys.argv)
