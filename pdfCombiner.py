@@ -28,19 +28,16 @@ def get_all_pdfs(path='.'):
             
     return pdfs
     
-
-if __name__ == "__main__":
+def combine_pdfs(*args):
     read_handles = []
     
     try:    
         from PyPDF2 import PdfFileMerger
         from send2trash import send2trash
-        import os
-        import sys
         
         pdf_path = '.'
-        if len(sys.argv) > 1:
-            pdf_path = sys.argv[1]
+        if len(args) > 1:
+            pdf_path = args[1]
     
         pdfs = get_all_pdfs(pdf_path)               
         numFiles = len(pdfs)
@@ -83,3 +80,9 @@ if __name__ == "__main__":
         
         print(e)
         input()
+
+if __name__ == "__main__":
+    import os
+    import sys
+    
+    combine_pdfs(*sys.argv)
