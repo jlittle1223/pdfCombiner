@@ -93,6 +93,7 @@ def get_minimum_pages_for_removing(arg_dict):
 def get_all_abs_pdf_paths(path='.'):
     abs_path = os.path.abspath(path)
     files = os.listdir(abs_path)
+    files.sort()
     abs_pdf_paths = []
     
     for file in files:
