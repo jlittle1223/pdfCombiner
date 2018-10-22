@@ -2,7 +2,7 @@
 try:
     import os
     import shutil
-    from pdfCombiner import get_unique_path
+    from pdfCombiner import get_unique_path, get_copy_index_length
     
     def get_result_prefix_and_extension(abs_file_path):
         _, filename = os.path.split(abs_file_path)
@@ -21,8 +21,9 @@ try:
     
     def send_file_to_results(arg_dict, abs_file_path, abs_out_path):
         result_prefix, extension = get_result_prefix_and_extension(abs_file_path)
+        copy_index_length = get_copy_index_length(arg_dict)
             
-        result_path = get_unique_path(abs_out_path, result_prefix, extension)
+        result_path = get_unique_path(abs_out_path, result_prefix, extension, copy_index_length)
         shutil.move(abs_file_path, result_path)
         
     def send_to_results(*args):

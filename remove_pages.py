@@ -5,7 +5,8 @@ try:
     from send_to_results import get_result_prefix_and_extension
     from pdfCombiner import get_all_abs_pdf_paths, get_arg_dict, \
             get_abs_in_path, get_abs_out_path, get_unique_path, \
-            get_open_pdf_when_removing_pages, get_minimum_pages_for_removing
+            get_open_pdf_when_removing_pages, get_minimum_pages_for_removing, \
+            get_copy_index_length
     from send2trash import send2trash
 
     def get_pages_to_remove(user_input):
@@ -53,7 +54,8 @@ try:
             try_opening(abs_pdf_path)
         
         result_prefix, extension = get_result_prefix_and_extension(abs_pdf_path)
-        result_path = get_unique_path(abs_out_path, result_prefix, extension)
+        copy_index_length = get_copy_index_length(arg_dict)
+        result_path = get_unique_path(abs_out_path, result_prefix, extension, copy_index_length)
         
         user_input = input(("What pages do you want to remove from {}? "+
                            "(numbers separated by spaces) ").format(abs_pdf_path))

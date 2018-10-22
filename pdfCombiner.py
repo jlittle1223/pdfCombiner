@@ -1,15 +1,29 @@
 import os
 from collections import OrderedDict
 
-def get_path(parent_path, file_prefix, file_suffix, copy_index=0):
+default_copy_index_length = 4
+
+def zero_pad_copy_index(copy_index, copy_index_length=default_copy_index_length):
+    copy_index_string = str(copy_index)
+    
+    while len(copy_index_string) < copy_index_length:
+        copy_index_string = "0" + copy_index_string
+        
+    return copy_index_string
+    
+
+def get_path(parent_path, file_prefix, file_suffix, copy_index=0, copy_index_length=default_copy_index_length):
     if copy_index <= 0:
         return os.path.join(parent_path, file_prefix+file_suffix)
     else:
-        return os.path.join(parent_path, file_prefix+"_"+str(copy_index)+file_suffix)
+        padded_copy_index_string = zero_pad_copy_index(copy_index, copy_index_length)
+        
+        return os.path.join(parent_path, file_prefix+"_"+padded_copy_index_string+file_suffix)
 
-def get_unique_path(parent_path, file_prefix, file_suffix, copy_index=0):
+def get_unique_path(parent_path, file_prefix, file_suffix, 
+                    copy_index_length=default_copy_index_length, copy_index=0):
     while True:
-        candidate_path = get_path(parent_path, file_prefix, file_suffix, copy_index)
+        candidate_path = get_path(parent_path, file_prefix, file_suffix, copy_index, copy_index_length)
         
         if not os.path.exists(candidate_path):
             return candidate_path
@@ -30,6 +44,7 @@ out_flag = '-out'
 result_prefix_flag = '-r'
 open_pdf_when_removing_pages_flag = '-o'
 minimum_pages_for_removing_flag = '-min'
+copy_index_length_flag = '-cil'
 
 default_flag_values = OrderedDict()
 default_flag_values[in_flag]='.'
@@ -37,6 +52,7 @@ default_flag_values[out_flag]=get_default_abs_out_path
 default_flag_values[result_prefix_flag]="result"
 default_flag_values[open_pdf_when_removing_pages_flag]=True
 default_flag_values[minimum_pages_for_removing_flag]=3
+default_flag_values[copy_index_length_flag]=default_copy_index_length
 
 def process_flag_candiate(flag_candidate):
     flag_candidate = flag_candidate.strip()
@@ -90,6 +106,9 @@ def get_minimum_pages_for_removing(arg_dict):
         raise ValueError(("Minimum pages for removing must be an integer, "+
                           "got {}").format(arg_dict[minimum_pages_for_removing_flag]))
 
+def get_copy_index_length(arg_dict):
+    return arg_dict[copy_index_length_flag]
+
 def get_all_abs_pdf_paths(path='.'):
     abs_path = os.path.abspath(path)
     files = os.listdir(abs_path)
@@ -136,7 +155,8 @@ def combine_pdfs(*args):
         os.makedirs(abs_out_path, exist_ok=True)
         
         result_prefix = get_result_prefix(arg_dict)
-        result_path = get_unique_path(abs_out_path, result_prefix, pdf_extension)
+        copy_index_length = get_copy_index_length(arg_dict)
+        result_path = get_unique_path(abs_out_path, result_prefix, pdf_extension, copy_index_length)
         
         with open(result_path, 'wb') as fout:
             merger.write(fout)
